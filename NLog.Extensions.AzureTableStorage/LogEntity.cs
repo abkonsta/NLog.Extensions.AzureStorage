@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Net.NetworkInformation;
 using System.Text;
 using Microsoft.WindowsAzure.Storage.Table;
 
@@ -9,7 +10,7 @@ namespace NLog.Extensions.AzureTableStorage
     {
         private readonly object _syncRoot = new object();
 
-        public LogEntity(string partitionKeyPrefix, LogEventInfo logEvent, string layoutMessage)
+        public LogEntity(string partitionKey, string rowKey, LogEventInfo logEvent, string layoutMessage)
         {
             lock (_syncRoot)
             {
@@ -18,6 +19,7 @@ namespace NLog.Extensions.AzureTableStorage
                 Level = logEvent.Level.Name;
                 Message = logEvent.FormattedMessage;
                 MessageWithLayout = layoutMessage;
+
                 if (logEvent.Exception != null)
                 {
                     Exception = logEvent.Exception.ToString();
@@ -30,17 +32,31 @@ namespace NLog.Extensions.AzureTableStorage
                         InnerException = logEvent.Exception.InnerException.ToString();
                     }
                 }
+
                 if (logEvent.StackTrace != null)
                 {
                     StackTrace = logEvent.StackTrace.ToString();
                 }
-                RowKey = String.Format("{0}__{1}", (DateTime.MaxValue.Ticks - DateTime.UtcNow.Ticks).ToString("d19"), Guid.NewGuid());
-                PartitionKey = !string.IsNullOrWhiteSpace(partitionKeyPrefix)
-                                ? partitionKeyPrefix + "." + LoggerName
-                                : LoggerName;
+
+                PartitionKey = TransformKey(partitionKey, logEvent);
+                RowKey = TransformKey(rowKey, logEvent);
+
                 MachineName = Environment.MachineName;
             }
+        }
 
+        private static string TransformKey(string key, LogEventInfo logEvent)
+        {
+            var date = logEvent.TimeStamp.ToUniversalTime();
+
+            return key
+                .Replace("${date}", date.ToString("yyyyMMdd"))
+                .Replace("${time}", date.ToString("HHmmss"))
+                .Replace("${ticks}", date.Ticks.ToString())
+                .Replace("${longdate}", date.ToString("yyyyMMddHHmmssffffff"))
+                .Replace("${guid}", Guid.NewGuid().ToString("N"))
+                .Replace("${loggername}", logEvent.LoggerName)
+                .Replace("${descticks}", (DateTime.MaxValue.Ticks - date.Ticks).ToString("d19"));
         }
 
         private static string GetExceptionDataAsString(Exception exception)
