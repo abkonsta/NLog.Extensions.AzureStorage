@@ -81,7 +81,6 @@ namespace NLog.Extensions.AzureTableStorage.Tests
             Assert.True(entity.ExceptionData.Contains("name=ahmed"));
         }
 
-
         [Fact]
         public void IncludeExceptionDetailsInLoggedRow()
         {
@@ -91,7 +90,6 @@ namespace NLog.Extensions.AzureTableStorage.Tests
             Assert.NotNull(entity.Exception);
             Assert.Equal(exception.ToString().ExceptBlanks(), entity.Exception.ExceptBlanks());
         }
-
 
         [Fact]
         public void IncludeInnerExceptionDetailsInLoggedRow()
@@ -142,12 +140,14 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         {
             return CloudConfigurationManager.GetSetting("StorageAccountConnectionString");
         }
+
         private CloudStorageAccount GetStorageAccount()
         {
             var connectionString = GetStorageAccountConnectionString();
             var storageAccount = CloudStorageAccount.Parse(connectionString);
             return storageAccount;
         }
+
         private List<LogEntity> GetLogEntities()
         {
             // Construct the query operation for all customer entities where PartitionKey="Smith".
@@ -156,6 +156,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
             var entities = _cloudTable.ExecuteQuery(query);
             return entities.ToList();
         }
+
         public void Dispose()
         {
             _cloudTable.DeleteIfExists();
