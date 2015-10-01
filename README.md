@@ -1,11 +1,7 @@
 NLog target for Azure Storage Tables
 ====================================================
 
-Azure Table Storage Target for NLog
-
-Download
-==========
-Download package from <a href="https://www.nuget.org/packages/NLog.Extensions.AzureTableStorage/">the nuget site</a>
+This package allows you to set up an NLog target to store logs in Azure table storage.
 
 How to use
 ==========
@@ -81,17 +77,27 @@ This package allows you to use the following macros to format your partition and
 - **${machine}** will be replaced by the value of Environment.Machine.
 - **${descticks}** will be replaced by the number of ticks *remaining* till <a href="https://msdn.microsoft.com/en-us/library/system.datetime.maxvalue(v=vs.110).aspx">DateTime.MaxValue</a>.
 
-About NLog Targets
-==================
-
-For more info about NLog targets and how to use it, refer to <a href="https://github.com/nlog/NLog/wiki/How%20to%20write%20a%20Target">How To Write a Target</a>
-
 How to View Logs?
 =================
-A lot of ways you can access table storage.
+
+I have found that the "Cloud Explorer" built into Microsoft Visual Studio 2015 is sufficient for most of my log searching needs. Think hard about what you are going to use as PartitionKey and RowKey.
+
+When you browse your logs in the Cloud Explorer, the data will look something like this:
+
+![Cloud Explorer Screenshot](screenshot.png?raw=true "Cloud Explorer Screenshot")
+
+Other ways to access table storage:
+
 - <a href="http://www.cloudportam.com/">Cloud Portam</a>
 - <a href="http://azurestorageexplorer.codeplex.com/">Azure Storage Explorer</a>
 
-Notes
-=====
-- Before running tests on you local machine, make sure Azure Storage Emulator is running.
+Running Tests
+=============
+
+Before running tests on you local machine, make sure Azure Storage Emulator is running.
+I think that I need to change the tests to have a setup/teardown executed before each individual unit test. I believe that multiple records run into each other when the tests are all run as a batch.
+
+About NLog Targets
+==================
+
+For more info about NLog targets and how to use it, refer to <a href="https://github.com/nlog/NLog/wiki/How%20to%20write%20a%20Target">How To Write a Target</a>.
