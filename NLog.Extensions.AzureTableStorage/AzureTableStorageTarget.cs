@@ -28,7 +28,7 @@ namespace NLog.Extensions.AzureTableStorage
             _tableStorageManager = new TableStorageManager(_configManager, TableName);
 
             if (string.IsNullOrWhiteSpace(PartitionKey))
-                PartitionKey = "${loggername}";
+                PartitionKey = "${logger}";
 
             if (string.IsNullOrWhiteSpace(RowKey))
                 PartitionKey = "${descticks}__${guid}";

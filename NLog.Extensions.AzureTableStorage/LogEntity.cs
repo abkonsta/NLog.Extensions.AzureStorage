@@ -54,8 +54,10 @@ namespace NLog.Extensions.AzureTableStorage
                 .Replace("${time}", date.ToString("HHmmss"))
                 .Replace("${ticks}", date.Ticks.ToString())
                 .Replace("${longdate}", date.ToString("yyyyMMddHHmmssffffff"))
+                .Replace("${micros}", date.ToString("ffffff"))
                 .Replace("${guid}", Guid.NewGuid().ToString("N"))
-                .Replace("${loggername}", logEvent.LoggerName)
+                .Replace("${logger}", logEvent.LoggerName)
+                .Replace("${machine}", Environment.MachineName)
                 .Replace("${descticks}", (DateTime.MaxValue.Ticks - date.Ticks).ToString("d19"));
         }
 

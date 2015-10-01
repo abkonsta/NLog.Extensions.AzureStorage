@@ -30,7 +30,6 @@ namespace NLog.Extensions.AzureTableStorage.Tests
             {
                 throw new Exception("Failed to initialize tests, make sure Azure Storage Emulator is running.", ex);
             }
-            
         }
 
         [Fact]
@@ -107,12 +106,27 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         }
 
         [Fact]
-        public void IncludePartitionKeyPrefix()
+        public void IncludePrefixInPartitionKey()
         {
             var exception = new NullReferenceException();
             _logger.Log(LogLevel.Error, "execption messege", (Exception)exception);
             var entity = GetLogEntities().Single();
-            Assert.True(entity.PartitionKey.Contains("customPrefix"));
+            Assert.True(entity.PartitionKey.Contains("Test"));
+        }
+
+        [Fact]
+        public void IncludeGuidAndTimeInRowKey()
+        {
+            var exception = new NullReferenceException();
+            _logger.Log(LogLevel.Error, "execption messege", (Exception)exception);
+            var entity = GetLogEntities().Single();
+            const string splitter = "__";
+            Assert.True(entity.RowKey.Contains(splitter));
+            var splitterArray = "__".ToCharArray();
+            var segments = entity.RowKey.Split(splitterArray, StringSplitOptions.RemoveEmptyEntries);
+            long timeComponent;
+            Assert.True(segments[1].Length == 32);
+            Assert.True(long.TryParse(segments[0], out timeComponent));
         }
 
         [Fact]
@@ -123,24 +137,6 @@ namespace NLog.Extensions.AzureTableStorage.Tests
             var entity = GetLogEntities().Single();
             Assert.Equal(entity.MachineName, Environment.MachineName);
         }
-
-        [Fact]
-        public void IncludeGuidAndTimeComponentInRowKey()
-        {
-            var exception = new NullReferenceException();
-            _logger.Log(LogLevel.Error, "execption messege", (Exception)exception);
-            var entity = GetLogEntities().Single();
-            const string splitter = "__";
-            Assert.True(entity.RowKey.Contains(splitter));
-            var splitterArray = "__".ToCharArray();
-            var segments = entity.RowKey.Split(splitterArray, StringSplitOptions.RemoveEmptyEntries);
-            Guid globalId;
-            long timeComponent;
-            Assert.True(Guid.TryParse(segments[1], out globalId));
-            Assert.True(long.TryParse(segments[0], out timeComponent));
-        }
-
-
 
         private string GetStorageAccountConnectionString()
         {
@@ -156,7 +152,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         {
             // Construct the query operation for all customer entities where PartitionKey="Smith".
             var query = new TableQuery<LogEntity>()
-                .Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "customPrefix." + GetType()));
+                .Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "Test." + GetType()));
             var entities = _cloudTable.ExecuteQuery(query);
             return entities.ToList();
         }
