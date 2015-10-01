@@ -52,7 +52,7 @@ namespace NLog.Extensions.AzureTableStorage
             return key
                 .Replace("${date}", date.ToString("yyyyMMdd"))
                 .Replace("${time}", date.ToString("HHmmss"))
-                .Replace("${ticks}", date.Ticks.ToString())
+                .Replace("${ticks}", date.Ticks.ToString("d19"))
                 .Replace("${longdate}", date.ToString("yyyyMMddHHmmssffffff"))
                 .Replace("${micros}", date.ToString("ffffff"))
                 .Replace("${guid}", Guid.NewGuid().ToString("N"))

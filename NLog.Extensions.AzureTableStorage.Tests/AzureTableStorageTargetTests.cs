@@ -74,7 +74,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
             var errorId = Guid.NewGuid();
             exception.Data["id"] = errorId;
             exception.Data["name"] = "ahmed";
-            _logger.Log(LogLevel.Error, "execption messege", (Exception)exception);
+            _logger.Log(LogLevel.Error, "exception message", (Exception)exception);
             var entities = GetLogEntities();
             var entity = entities.Single();
             Assert.True(entity.ExceptionData.Contains(errorId.ToString()));
@@ -85,7 +85,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         public void IncludeExceptionDetailsInLoggedRow()
         {
             var exception = new NullReferenceException();
-            _logger.Log(LogLevel.Error, "execption messege", (Exception)exception);
+            _logger.Log(LogLevel.Error, "exception message", (Exception)exception);
             var entity = GetLogEntities().Single();
             Assert.NotNull(entity.Exception);
             Assert.Equal(exception.ToString().ExceptBlanks(), entity.Exception.ExceptBlanks());
@@ -95,7 +95,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         public void IncludeInnerExceptionDetailsInLoggedRow()
         {
             var exception = new NullReferenceException("exception message", new DivideByZeroException());
-            _logger.Log(LogLevel.Error, "execption messege", (Exception)exception);
+            _logger.Log(LogLevel.Error, "exception message", (Exception)exception);
             var entity = GetLogEntities().Single();
             Assert.NotNull(entity.Exception);
             Assert.Equal(exception.ToString().ExceptBlanks(), entity.Exception.ExceptBlanks());
@@ -107,7 +107,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         public void IncludePrefixInPartitionKey()
         {
             var exception = new NullReferenceException();
-            _logger.Log(LogLevel.Error, "execption messege", (Exception)exception);
+            _logger.Log(LogLevel.Error, "exception message", (Exception)exception);
             var entity = GetLogEntities().Single();
             Assert.True(entity.PartitionKey.Contains("Test"));
         }
@@ -116,7 +116,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         public void IncludeGuidAndTimeInRowKey()
         {
             var exception = new NullReferenceException();
-            _logger.Log(LogLevel.Error, "execption messege", (Exception)exception);
+            _logger.Log(LogLevel.Error, "exception message", (Exception)exception);
             var entity = GetLogEntities().Single();
             const string splitter = "__";
             Assert.True(entity.RowKey.Contains(splitter));
@@ -131,7 +131,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         public void IncludeMachineName()
         {
             var exception = new NullReferenceException();
-            _logger.Log(LogLevel.Error, "execption messege", (Exception)exception);
+            _logger.Log(LogLevel.Error, "exception message", (Exception)exception);
             var entity = GetLogEntities().Single();
             Assert.Equal(entity.MachineName, Environment.MachineName);
         }
