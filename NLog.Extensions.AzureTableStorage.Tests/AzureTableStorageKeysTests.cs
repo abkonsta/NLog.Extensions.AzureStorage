@@ -155,14 +155,14 @@ namespace NLog.Extensions.AzureTableStorage.Tests
             Assert.Equal(key[0].Length, 19);
         }
 
-        private string GetStorageAccountConnectionString()
+        private string GetConnectionString()
         {
-            return CloudConfigurationManager.GetSetting("StorageAccountConnectionString");
+            return CloudConfigurationManager.GetSetting("ConnectionString");
         }
 
         private CloudStorageAccount GetStorageAccount()
         {
-            var connectionString = GetStorageAccountConnectionString();
+            var connectionString = GetConnectionString();
             var storageAccount = CloudStorageAccount.Parse(connectionString);
             return storageAccount;
         }

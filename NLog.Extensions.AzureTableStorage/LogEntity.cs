@@ -6,9 +6,44 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace NLog.Extensions.AzureTableStorage
 {
+    /// <summary>
+    /// This is the entity class that represents the records being written out to Azure Storage
+    /// </summary>
     public class LogEntity : TableEntity
     {
+        #region Constants
+        #endregion Constants
+
+        #region Fields
         private readonly object _syncRoot = new object();
+        #endregion Fields
+
+        #region Properties
+        public string LogTimeStamp { get; set; }
+
+        public string Level { get; set; }
+
+        public string LoggerName { get; set; }
+
+        public string Message { get; set; }
+
+        public string Exception { get; set; }
+
+        public string InnerException { get; set; }
+
+        public string StackTrace { get; set; }
+
+        public string MessageWithLayout { get; set; }
+
+        public string ExceptionData { get; set; }
+
+        public string MachineName { get; set; }
+        #endregion Properties
+
+        #region Constructors
+        public LogEntity()
+        {
+        }
 
         public LogEntity(string partitionKey, string rowKey, LogEventInfo logEvent, string layoutMessage)
         {
@@ -44,7 +79,9 @@ namespace NLog.Extensions.AzureTableStorage
                 MachineName = Environment.MachineName;
             }
         }
+        #endregion Constructors
 
+        #region Methods
         private static string TransformKey(string key, LogEventInfo logEvent)
         {
             var date = logEvent.TimeStamp.ToUniversalTime();
@@ -70,20 +107,6 @@ namespace NLog.Extensions.AzureTableStorage
             }
             return data.ToString();
         }
-
-        public LogEntity()
-        {
-        }
-
-        public string LogTimeStamp { get; set; }
-        public string Level { get; set; }
-        public string LoggerName { get; set; }
-        public string Message { get; set; }
-        public string Exception { get; set; }
-        public string InnerException { get; set; }
-        public string StackTrace { get; set; }
-        public string MessageWithLayout { get; set; }
-        public string ExceptionData { get; set; }
-        public string MachineName { get; set; }
+        #endregion Methods
     }
 }

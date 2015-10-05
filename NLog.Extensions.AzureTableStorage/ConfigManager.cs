@@ -4,40 +4,34 @@ using System.Configuration;
 
 namespace NLog.Extensions.AzureTableStorage
 {
+    /// <summary>
+    /// Config manager
+    /// </summary>
     public class ConfigManager
     {
-        private readonly string _connectionStringKey;
+        #region Constants
+        #endregion Constants
 
-        public ConfigManager(string connectionStringKey)
+        #region Fields
+        private readonly string _connectionString;
+        #endregion Fields
+
+        #region Properties
+        #endregion Properties
+
+        #region Constructors
+        #endregion Constructors
+
+        #region Methods
+        public ConfigManager(string connectionString)
         {
-            _connectionStringKey = connectionStringKey;
-        }
-
-        private string GetStorageAccountConnectionString()
-        {
-            //try get connection string from app settings or cloud service config
-            var connectionStringValue = CloudConfigurationManager.GetSetting(_connectionStringKey);
-            if (!string.IsNullOrEmpty(connectionStringValue)) return connectionStringValue;
-
-            //try get connection string from ConfigurationManager.ConnectionStrings
-            var connectionString = ConfigurationManager.ConnectionStrings[_connectionStringKey];
-            if (connectionString != null)
-            {
-                connectionStringValue = connectionString.ConnectionString;
-            }
-            return connectionStringValue;
+            _connectionString = connectionString;
         }
 
         public CloudStorageAccount GetStorageAccount()
         {
-            var connectionString = GetStorageAccountConnectionString();
-            return CloudStorageAccount.Parse(connectionString);
+            return CloudStorageAccount.Parse(_connectionString);
         }
-
-        public string GetSettingByKey(string key)
-        {
-            //try get string from app settings or cloud service config
-           return CloudConfigurationManager.GetSetting(key);
-        }
+        #endregion Methods
     }
 }

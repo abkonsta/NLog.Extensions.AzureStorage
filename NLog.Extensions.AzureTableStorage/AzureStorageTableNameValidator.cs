@@ -4,13 +4,25 @@ using System.Text.RegularExpressions;
 
 namespace NLog.Extensions.AzureTableStorage
 {
-    //validation rules described in: http://msdn.microsoft.com/en-us/library/windowsazure/dd179338.aspx
+    /// <summary>
+    /// Storage table name validator.
+    /// Validation rules described in: http://msdn.microsoft.com/en-us/library/windowsazure/dd179338.aspx
+    /// </summary>
     public class AzureStorageTableNameValidator
     {
-        private readonly string _tableName;
+        #region Constants
         private const string RegularExpression = @"^[A-Za-z][A-Za-z0-9]{2,62}$";
-        private readonly List<string> _reservedWords;
+        #endregion Constants
 
+        #region Fields
+        private readonly string _tableName;
+        private readonly List<string> _reservedWords;
+        #endregion Fields
+
+        #region Properties
+        #endregion Properties
+
+        #region Constructors
         public AzureStorageTableNameValidator(string tableName)
         {
             if (string.IsNullOrEmpty(tableName))
@@ -20,11 +32,14 @@ namespace NLog.Extensions.AzureTableStorage
             _tableName = tableName;
             _reservedWords = new List<string> { "tables" };
         }
+        #endregion Constructors
 
+        #region Methods
         public bool IsValid()
         {
             return !_reservedWords.Contains(_tableName) 
                 && Regex.IsMatch(_tableName, RegularExpression);
         }
+        #endregion Methods
     }
 }

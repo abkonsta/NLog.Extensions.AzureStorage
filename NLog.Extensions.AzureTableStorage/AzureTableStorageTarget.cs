@@ -4,14 +4,23 @@ using NLog.Targets;
 
 namespace NLog.Extensions.AzureTableStorage
 {
+    /// <summary>
+    /// This class represents a target in the NLog.config file.
+    /// </summary>
     [Target("AzureTableStorage")]
     public class AzureTableStorageTarget : TargetWithLayout
     {
+        #region Constants
+        #endregion Constants
+
+        #region Fields
         private ConfigManager _configManager;
         private TableStorageManager _tableStorageManager;
+        #endregion Fields
 
+        #region Properties
         [Required]
-        public string ConnectionStringKey { get; set; }
+        public string ConnectionString { get; set; }
 
         [Required]
         public string TableName { get; set; }
@@ -19,19 +28,25 @@ namespace NLog.Extensions.AzureTableStorage
         public string PartitionKey { get; set; }
 
         public string RowKey { get; set; }
+        #endregion Properties
 
+        #region Constructors
+        #endregion Constructors
+
+        #region Methods
         protected override void InitializeTarget()
         {
             base.InitializeTarget();
             ValidateParameters();
-            _configManager = new ConfigManager(ConnectionStringKey);
+
+            _configManager = new ConfigManager(ConnectionString);
             _tableStorageManager = new TableStorageManager(_configManager, TableName);
 
             if (string.IsNullOrWhiteSpace(PartitionKey))
-                PartitionKey = "${logger}";
+                PartitionKey = "${date}";
 
             if (string.IsNullOrWhiteSpace(RowKey))
-                PartitionKey = "${descticks}__${guid}";
+                PartitionKey = "${ticks}.${guid}";
         }
 
         private void ValidateParameters()
@@ -59,5 +74,6 @@ namespace NLog.Extensions.AzureTableStorage
                 _tableStorageManager.Add(new LogEntity(PartitionKey, RowKey, logEvent, layoutMessage));
             }
         }
+        #endregion Methods
     }
 }
