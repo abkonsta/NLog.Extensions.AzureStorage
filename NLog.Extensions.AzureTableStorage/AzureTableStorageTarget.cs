@@ -1,6 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
+using NLog.Common;
 using NLog.Targets;
+using NLog.Internal;
 
 namespace NLog.Extensions.AzureTableStorage
 {
@@ -14,7 +17,6 @@ namespace NLog.Extensions.AzureTableStorage
         #endregion Constants
 
         #region Fields
-        private ConfigManager _configManager;
         private TableStorageManager _tableStorageManager;
         #endregion Fields
 
@@ -39,8 +41,7 @@ namespace NLog.Extensions.AzureTableStorage
             base.InitializeTarget();
             ValidateParameters();
 
-            _configManager = new ConfigManager(ConnectionString);
-            _tableStorageManager = new TableStorageManager(_configManager, TableName);
+            _tableStorageManager = new TableStorageManager(ConnectionString, TableName);
 
             if (string.IsNullOrWhiteSpace(PartitionKey))
                 PartitionKey = "${date}";
@@ -68,11 +69,24 @@ namespace NLog.Extensions.AzureTableStorage
 
         protected override void Write(LogEventInfo logEvent)
         {
-            if (_tableStorageManager != null)
+            try
             {
-                var layoutMessage = Layout.Render(logEvent);
-                _tableStorageManager.Add(new LogEntity(PartitionKey, RowKey, logEvent, layoutMessage));
+                WriteToDatabase(logEvent);
             }
+            catch (Exception exception)
+            {
+                if (exception.MustBeRethrown())
+                    throw;
+
+                Trace.TraceError($"NLog.Extensions.AzureTableStorage.Write() error: {exception}");
+                InternalLogger.Error($"Error writing to azure storage table: {exception}");
+            }
+        }
+
+        private void WriteToDatabase(LogEventInfo logEvent)
+        {
+            _tableStorageManager.EnsureConfigurationIsCurrent(ConnectionString, TableName);
+            _tableStorageManager.Add(new LogEntity(PartitionKey, RowKey, logEvent, Layout.Render(logEvent)));
         }
         #endregion Methods
     }

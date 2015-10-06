@@ -33,6 +33,14 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         }
 
         [Fact]
+        public void CanReconfigureOnTheFly()
+        {
+            var azureStorageTarget = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName("AzureTableStorage");
+            azureStorageTarget.ConnectionString = "yo";
+            LogManager.ReconfigExistingLoggers();
+        }
+
+        [Fact]
         public void CanLogInformation()
         {
             Assert.True(GetLogEntities().Count == 0);
