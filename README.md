@@ -16,7 +16,7 @@ How to use
 ==========
 
 - Download package from <a href="https://www.nuget.org/packages/NLog.Extensions.AzureTableStorage/">the nuget site</a>.
-- Set up a your NLog.config file:
+- Set up your NLog.config file:
 
 `````xml
 <?xml version="1.0" encoding="utf-8" ?>
