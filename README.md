@@ -61,7 +61,7 @@ In this config file, the following parameters can be used to configure your targ
 - **xsi:type** must be 'AzureTableStorage'.
 - **PartitionKey** is a string which contains macros and string literals, more on that below.
 - **RowKey** uses the same syntax as **PartitionKey**.
-- **ConnectionStringKey** is the key in your app.config/web.config where the connection string is.
+- **ConnectionString** is the Azure storage connection string. Make it an empty string if you are planning to initialize it at runtime.
 - **tableName** is the name of the azure storage table. If the table does not exist, it will automatically be created.
 
 Obviously, PartitionKey and RowKey cannot just be left as constants, we need to be able to vary them.
