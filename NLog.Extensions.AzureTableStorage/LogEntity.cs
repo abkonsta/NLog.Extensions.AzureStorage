@@ -94,6 +94,8 @@ namespace NLog.Extensions.AzureTableStorage
                 .Replace("${micros}", date.ToString("ffffff"))
                 .Replace("${guid}", Guid.NewGuid().ToString("N"))
                 .Replace("${logger}", logEvent.LoggerName)
+                .Replace("${level}", logEvent.Level.ToString())
+                .Replace("${level:uppercase=true}", logEvent.Level.ToString().ToUpper())
                 .Replace("${machine}", Environment.MachineName)
                 .Replace("${descticks}", (DateTime.MaxValue.Ticks - date.Ticks).ToString("d19"));
         }

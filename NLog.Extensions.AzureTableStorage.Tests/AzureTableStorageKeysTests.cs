@@ -155,6 +155,42 @@ namespace NLog.Extensions.AzureTableStorage.Tests
             Assert.Equal(key[0].Length, 19);
         }
 
+        [Fact]
+        public void IncludeLevelInRowKey()
+        {
+            // configure keys and log something
+            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName("AzureTableStorage");
+            target.RowKey = "${level}__${guid}";
+            LogManager.ReconfigExistingLoggers();
+            _logger.Log(LogLevel.Info, "information");
+
+            // extract the key
+            var entity = GetLogEntities().First();
+            var key = entity.RowKey.Split("__".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+            // assert
+            Assert.Equal(2, key.Length);
+            Assert.Equal(LogLevel.Info.ToString(), key[0]);
+        }
+
+        [Fact]
+        public void IncludeLevelUppercaseInRowKey()
+        {
+            // configure keys and log something
+            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName("AzureTableStorage");
+            target.RowKey = "${level:uppercase=true}__${guid}";
+            LogManager.ReconfigExistingLoggers();
+            _logger.Log(LogLevel.Info, "information");
+
+            // extract the key
+            var entity = GetLogEntities().First();
+            var key = entity.RowKey.Split("__".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+            // assert
+            Assert.Equal(2, key.Length);
+            Assert.Equal(LogLevel.Info.ToString().ToUpper(), key[0]);
+        }
+
         private string GetConnectionString()
         {
             return CloudConfigurationManager.GetSetting("ConnectionString");
