@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Globalization;
 using System.Net.NetworkInformation;
 using System.Text;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -16,6 +17,7 @@ namespace NLog.Extensions.AzureTableStorage
 
         #region Fields
         private readonly object _syncRoot = new object();
+        private static readonly CompareInfo InvariantCompareInfo = CultureInfo.InvariantCulture.CompareInfo;
         #endregion Fields
 
         #region Properties
@@ -73,31 +75,50 @@ namespace NLog.Extensions.AzureTableStorage
                     StackTrace = logEvent.StackTrace.ToString();
                 }
 
+                MachineName = Environment.MachineName;
+
                 PartitionKey = TransformKey(partitionKey, logEvent);
                 RowKey = TransformKey(rowKey, logEvent);
-
-                MachineName = Environment.MachineName;
             }
         }
         #endregion Constructors
 
         #region Methods
-        private static string TransformKey(string key, LogEventInfo logEvent)
+        private string TransformKey(string key, LogEventInfo logEvent)
         {
-            var date = logEvent.TimeStamp.ToUniversalTime();
+            var capacity = key.Length * 3;  // Guesstimate of a reasonable maximum length after transform
+            var builder = new StringBuilder(key, capacity);
 
-            return key
-                .Replace("${date}", date.ToString("yyyyMMdd"))
-                .Replace("${time}", date.ToString("HHmmss"))
-                .Replace("${ticks}", date.Ticks.ToString("d19"))
-                .Replace("${longdate}", date.ToString("yyyyMMddHHmmssffffff"))
-                .Replace("${micros}", date.ToString("ffffff"))
-                .Replace("${guid}", Guid.NewGuid().ToString("N"))
-                .Replace("${logger}", logEvent.LoggerName)
-                .Replace("${level}", logEvent.Level.ToString())
-                .Replace("${level:uppercase=true}", logEvent.Level.ToString().ToUpper())
-                .Replace("${machine}", Environment.MachineName)
-                .Replace("${descticks}", (DateTime.MaxValue.Ticks - date.Ticks).ToString("d19"));
+            var date = logEvent.TimeStamp.ToUniversalTime();
+            if (InvariantCompareInfo.IndexOf(key, "${date}", CompareOptions.Ordinal) >= 0)
+                builder.Replace("${date}", date.ToString("yyyyMMdd"));
+            if (InvariantCompareInfo.IndexOf(key, "${time}", CompareOptions.Ordinal) >= 0)
+                builder.Replace("${time}", date.ToString("HHmmss"));
+            if (InvariantCompareInfo.IndexOf(key, "${ticks}", CompareOptions.Ordinal) >= 0)
+                builder.Replace("${ticks}", date.Ticks.ToString("d19"));
+            if (InvariantCompareInfo.IndexOf(key, "${longdate}", CompareOptions.Ordinal) >= 0)
+                builder.Replace("${longdate}", date.ToString("yyyyMMddHHmmssffffff"));
+            if (InvariantCompareInfo.IndexOf(key, "${micros}", CompareOptions.Ordinal) >= 0)
+                builder.Replace("${micros}", date.ToString("ffffff"));
+            if (InvariantCompareInfo.IndexOf(key, "${descticks}", CompareOptions.Ordinal) >= 0)
+                builder.Replace("${descticks}", (DateTime.MaxValue.Ticks - date.Ticks).ToString("d19"));
+
+            if (InvariantCompareInfo.IndexOf(key, "${guid}", CompareOptions.Ordinal) >= 0)
+                builder.Replace("${guid}", Guid.NewGuid().ToString("N"));
+            if (InvariantCompareInfo.IndexOf(key, "${logger}", CompareOptions.Ordinal) >= 0)
+                builder.Replace("${logger}", logEvent.LoggerName);
+
+            var level = logEvent.Level.Name;
+            if (InvariantCompareInfo.IndexOf(key, "${level}", CompareOptions.Ordinal) >= 0)
+                builder.Replace("${level}", level);
+            if (InvariantCompareInfo.IndexOf(key, "${level:uppercase=true}", CompareOptions.Ordinal) >= 0)
+                builder.Replace("${level:uppercase=true}", level.ToUpper());
+
+            if (InvariantCompareInfo.IndexOf(key, "${machine}", CompareOptions.Ordinal) >= 0)
+                builder.Replace("${machine}", MachineName);
+
+            var result = builder.ToString();
+            return result;
         }
 
         private static string GetExceptionDataAsString(Exception exception)
