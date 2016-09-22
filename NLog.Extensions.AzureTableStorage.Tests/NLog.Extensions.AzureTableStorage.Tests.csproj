@@ -93,6 +93,7 @@
   <ItemGroup>
     <Compile Include="AzureStorageTableNameValidatorTests.cs" />
     <Compile Include="AzureTableStorageKeysTests.cs" />
+    <Compile Include="AzureTableStoragePerformanceTests.cs" />
     <Compile Include="AzureTableStorageTargetTests.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
