@@ -12,7 +12,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
     {
         #region Constants
         //must match table name in AzureTableStorage target in NLog.config
-        private const string TargetTableName = "TempAzureTableStorageTargetTestsLogs"; 
+        private const string TargetTableName = "AzureTableStorageKeysTests"; 
         #endregion Constants
 
         #region Fields
@@ -28,12 +28,13 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         {
             try
             {
-                _logger = LogManager.GetLogger(GetType().ToString());
+                _logger = LogManager.GetLogger(TargetTableName);
                 var storageAccount = GetStorageAccount();
                 // Create the table client.
                 var tableClient = storageAccount.CreateCloudTableClient();
                 //create charts table if not exists.
                 _cloudTable = tableClient.GetTableReference(TargetTableName);
+                _cloudTable.DeleteIfExists();
                 _cloudTable.CreateIfNotExists();
             }
             catch (Exception ex)
@@ -47,55 +48,55 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         [Fact]
         public void IncludeDateInRowKey()
         {
-            // configure keys and log something
-            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName("AzureTableStorage");
+            // configure keys
+            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName(TargetTableName);
             target.RowKey = "${date}__${guid}";
             LogManager.ReconfigExistingLoggers();
+
+            // log something
             _logger.Log(LogLevel.Info, "information");
 
-            // extract the key
+            // extract the key and assert
             var expectedDate = DateTime.UtcNow.ToString("yyyyMMdd");
             var entity = GetLogEntities().First();
             var key = entity.RowKey.Split("__".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
-            // assert
-            Assert.Equal(key.Length, 2);
-            Assert.Equal(key[0], expectedDate);
+            Assert.Equal(2, key.Length);
+            Assert.Equal(expectedDate, key[0]);
         }
 
         [Fact]
         public void IncludeTimeAndGuidInRowKey()
         {
-            // configure keys and log something
-            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName("AzureTableStorage");
+            // configure keys
+            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName(TargetTableName);
             target.RowKey = "${time}__${guid}";
             LogManager.ReconfigExistingLoggers();
+
+            // log something
             _logger.Log(LogLevel.Info, "information");
 
-            // extract the key
+            // extract the key and assert
             var entity = GetLogEntities().First();
             var key = entity.RowKey.Split("__".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
-            // assert
             Assert.Equal(key.Length, 2);
-            Assert.Equal(key[0].Length, 6);
-            Assert.Equal(key[1].Length, 32);
+            Assert.Equal(6, key[0].Length);
+            Assert.Equal(32, key[1].Length);
         }
 
         [Fact]
         public void IncludeTicksAndLongDateInRowKey()
         {
-            // configure keys and log something
-            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName("AzureTableStorage");
+            // configure keys
+            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName(TargetTableName);
             target.RowKey = "${ticks}__${longdate}";
             LogManager.ReconfigExistingLoggers();
+
+            // log something
             _logger.Log(LogLevel.Info, "information");
 
-            // extract the key
+            // extract the key and assert
             var entity = GetLogEntities().First();
             var key = entity.RowKey.Split("__".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
-            // assert
             Assert.Equal(key.Length, 2);
             Assert.Equal(key[0].Length, 19);
             Assert.Equal(key[1].Length, 20);
@@ -104,71 +105,71 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         [Fact]
         public void IncludeMicrosInRowKey()
         {
-            // configure keys and log something
-            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName("AzureTableStorage");
+            // configure keys
+            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName(TargetTableName);
             target.RowKey = "${micros}__${guid}";
             LogManager.ReconfigExistingLoggers();
+
+            // log something
             _logger.Log(LogLevel.Info, "information");
 
-            // extract the key
+            // extract the key and assert
             var entity = GetLogEntities().First();
             var key = entity.RowKey.Split("__".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
-            // assert
-            Assert.Equal(key.Length, 2);
-            Assert.Equal(key[0].Length, 6);
+            Assert.Equal(2, key.Length);
+            Assert.Equal(6, key[0].Length);
         }
 
         [Fact]
         public void IncludeMachineInRowKey()
         {
-            // configure keys and log something
-            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName("AzureTableStorage");
+            // configure keys
+            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName(TargetTableName);
             target.RowKey = "${machine}__${guid}";
             LogManager.ReconfigExistingLoggers();
+
+            // log something
             _logger.Log(LogLevel.Info, "information");
 
-            // extract the key
+            // extract the key and assert
             var entity = GetLogEntities().First();
             var key = entity.RowKey.Split("__".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
-            // assert
-            Assert.Equal(key.Length, 2);
-            Assert.Equal(key[0], Environment.MachineName);
+            Assert.Equal(2, key.Length);
+            Assert.Equal(Environment.MachineName, key[0]);
         }
 
         [Fact]
         public void IncludeDescendingTicksInRowKey()
         {
-            // configure keys and log something
-            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName("AzureTableStorage");
+            // configure keys
+            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName(TargetTableName);
             target.RowKey = "${descticks}__${guid}";
             LogManager.ReconfigExistingLoggers();
+
+            // log something
             _logger.Log(LogLevel.Info, "information");
 
-            // extract the key
+            // extract the key and assert
             var entity = GetLogEntities().First();
             var key = entity.RowKey.Split("__".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
-            // assert
-            Assert.Equal(key.Length, 2);
-            Assert.Equal(key[0].Length, 19);
+            Assert.Equal(2, key.Length);
+            Assert.Equal(19, key[0].Length);
         }
 
         [Fact]
         public void IncludeLevelInRowKey()
         {
-            // configure keys and log something
-            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName("AzureTableStorage");
+            // configure keys
+            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName(TargetTableName);
             target.RowKey = "${level}__${guid}";
             LogManager.ReconfigExistingLoggers();
+
+            // log something
             _logger.Log(LogLevel.Info, "information");
 
-            // extract the key
+            // extract the key and assert
             var entity = GetLogEntities().First();
             var key = entity.RowKey.Split("__".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
-            // assert
             Assert.Equal(2, key.Length);
             Assert.Equal(LogLevel.Info.ToString(), key[0]);
         }
@@ -176,17 +177,17 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         [Fact]
         public void IncludeLevelUppercaseInRowKey()
         {
-            // configure keys and log something
-            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName("AzureTableStorage");
+            // configure keys
+            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName(TargetTableName);
             target.RowKey = "${level:uppercase=true}__${guid}";
             LogManager.ReconfigExistingLoggers();
+
+            // log something
             _logger.Log(LogLevel.Info, "information");
 
-            // extract the key
+            // extract the key and assert
             var entity = GetLogEntities().First();
             var key = entity.RowKey.Split("__".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
-            // assert
             Assert.Equal(2, key.Length);
             Assert.Equal(LogLevel.Info.ToString().ToUpper(), key[0]);
         }
@@ -205,9 +206,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
 
         private List<LogEntity> GetLogEntities()
         {
-            // Construct the query operation for all customer entities where PartitionKey="Smith".
-            var query = new TableQuery<LogEntity>()
-                .Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "Test." + GetType()));
+            var query = new TableQuery<LogEntity>();
             var entities = _cloudTable.ExecuteQuery(query);
             return entities.ToList();
         }
