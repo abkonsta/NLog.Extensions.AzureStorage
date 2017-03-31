@@ -82,6 +82,7 @@ This package allows you to use the following macros to format your partition and
 - **${level}** will be replaced by the log level. Also supports ${level:uppercase=true}.
 - **${machine}** will be replaced by the value of Environment.Machine.
 - **${descticks}** will be replaced by the number of ticks *remaining* till <a href="https://msdn.microsoft.com/en-us/library/system.datetime.maxvalue(v=vs.110).aspx">DateTime.MaxValue</a>.
+- **${gdc:[keyName]} will be replaced by value from GlobalDiagnosticsContext by keyName
 
 Configuring the Target Dynamically
 ==================================

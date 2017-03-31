@@ -11,19 +11,25 @@ namespace NLog.Extensions.AzureTableStorage.Tests
     public class AzureTableStorageKeysTests : IDisposable
     {
         #region Constants
+
         //must match table name in AzureTableStorage target in NLog.config
-        private const string TargetTableName = "AzureTableStorageKeysTests"; 
+        private const string TargetTableName = "AzureTableStorageKeysTests";
+
         #endregion Constants
 
         #region Fields
+
         private readonly Logger _logger;
         private readonly CloudTable _cloudTable;
+
         #endregion Fields
 
         #region Properties
+
         #endregion Properties
 
         #region Constructors
+
         public AzureTableStorageKeysTests()
         {
             try
@@ -42,14 +48,37 @@ namespace NLog.Extensions.AzureTableStorage.Tests
                 throw new Exception("Failed to initialize tests, make sure Azure Storage Emulator is running.", ex);
             }
         }
+
         #endregion Constructors
 
         #region Methods
+
+        [Fact]
+        public void IncludeGdcInPatitionKey()
+        {
+            var gdcValue = Guid.NewGuid().ToString().Replace("-", string.Empty);
+            GlobalDiagnosticsContext.Set("item", gdcValue);
+
+            // configure keys
+            var target = (AzureTableStorageTarget) LogManager.Configuration.FindTargetByName(TargetTableName);
+            target.RowKey = "${gdc:item}__${guid}";
+            LogManager.ReconfigExistingLoggers();
+
+
+            // log something
+            _logger.Log(LogLevel.Info, "information");
+
+            var entity = GetLogEntities().First();
+            var key = entity.RowKey.Split("__".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            Assert.Equal(2, key.Length);
+            Assert.Equal(gdcValue, key[0]);
+        }
+
         [Fact]
         public void IncludeDateInRowKey()
         {
             // configure keys
-            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName(TargetTableName);
+            var target = (AzureTableStorageTarget) LogManager.Configuration.FindTargetByName(TargetTableName);
             target.RowKey = "${date}__${guid}";
             LogManager.ReconfigExistingLoggers();
 
@@ -68,7 +97,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         public void IncludeTimeAndGuidInRowKey()
         {
             // configure keys
-            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName(TargetTableName);
+            var target = (AzureTableStorageTarget) LogManager.Configuration.FindTargetByName(TargetTableName);
             target.RowKey = "${time}__${guid}";
             LogManager.ReconfigExistingLoggers();
 
@@ -87,7 +116,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         public void IncludeTicksAndLongDateInRowKey()
         {
             // configure keys
-            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName(TargetTableName);
+            var target = (AzureTableStorageTarget) LogManager.Configuration.FindTargetByName(TargetTableName);
             target.RowKey = "${ticks}__${longdate}";
             LogManager.ReconfigExistingLoggers();
 
@@ -106,7 +135,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         public void IncludeMicrosInRowKey()
         {
             // configure keys
-            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName(TargetTableName);
+            var target = (AzureTableStorageTarget) LogManager.Configuration.FindTargetByName(TargetTableName);
             target.RowKey = "${micros}__${guid}";
             LogManager.ReconfigExistingLoggers();
 
@@ -124,7 +153,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         public void IncludeMachineInRowKey()
         {
             // configure keys
-            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName(TargetTableName);
+            var target = (AzureTableStorageTarget) LogManager.Configuration.FindTargetByName(TargetTableName);
             target.RowKey = "${machine}__${guid}";
             LogManager.ReconfigExistingLoggers();
 
@@ -142,7 +171,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         public void IncludeDescendingTicksInRowKey()
         {
             // configure keys
-            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName(TargetTableName);
+            var target = (AzureTableStorageTarget) LogManager.Configuration.FindTargetByName(TargetTableName);
             target.RowKey = "${descticks}__${guid}";
             LogManager.ReconfigExistingLoggers();
 
@@ -160,7 +189,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         public void IncludeLevelInRowKey()
         {
             // configure keys
-            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName(TargetTableName);
+            var target = (AzureTableStorageTarget) LogManager.Configuration.FindTargetByName(TargetTableName);
             target.RowKey = "${level}__${guid}";
             LogManager.ReconfigExistingLoggers();
 
@@ -178,7 +207,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         public void IncludeLevelUppercaseInRowKey()
         {
             // configure keys
-            var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName(TargetTableName);
+            var target = (AzureTableStorageTarget) LogManager.Configuration.FindTargetByName(TargetTableName);
             target.RowKey = "${level:uppercase=true}__${guid}";
             LogManager.ReconfigExistingLoggers();
 
@@ -215,6 +244,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         {
             _cloudTable.DeleteIfExists();
         }
+
         #endregion Methods
     }
 }
