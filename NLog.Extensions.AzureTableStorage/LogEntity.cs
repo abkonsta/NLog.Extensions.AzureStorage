@@ -126,13 +126,12 @@ namespace NLog.Extensions.AzureTableStorage
                 builder.Replace("${machine}", MachineName);
 
             var gdcRegEx = new Regex(@"\$\{(gdc:)(\w{1,})\}", RegexOptions.Compiled);
-            if (gdcRegEx.IsMatch(key))
+            foreach (Match match in gdcRegEx.Matches(key))
             {
-                var gdcKey = gdcRegEx.Match(key);
-                var gdcItem = GlobalDiagnosticsContext.Get(gdcKey.Groups[2].Value);
+                var gdcItem = GlobalDiagnosticsContext.Get(match.Groups[2].Value);
                 if (!string.IsNullOrWhiteSpace(gdcItem))
                 {
-                    builder.Replace(gdcKey.Groups[0].Value, gdcItem);
+                    builder.Replace(match.Groups[0].Value, gdcItem);
                 }
             }
 
@@ -149,6 +148,7 @@ namespace NLog.Extensions.AzureTableStorage
             }
             return data.ToString();
         }
+
         #endregion Methods
     }
 }

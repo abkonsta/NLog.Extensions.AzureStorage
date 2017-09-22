@@ -75,6 +75,36 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         }
 
         [Fact]
+        public void IncludeMultipleGdcInPatitionKey()
+        {
+            var gdcVariables = new Dictionary<string, string>
+            {
+                {"item1", Guid.NewGuid().ToString().Replace("-", string.Empty)},
+                {"item2", Guid.NewGuid().ToString().Replace("-", string.Empty)}
+            };
+
+            foreach (var pair in gdcVariables)
+            {
+                GlobalDiagnosticsContext.Set(pair.Key, pair.Value);
+            }
+
+            // configure keys
+            var target = (AzureTableStorageTarget) LogManager.Configuration.FindTargetByName(TargetTableName);
+            target.RowKey = "${gdc:item1}__${gdc:item2}__${guid}";
+            LogManager.ReconfigExistingLoggers();
+
+
+            // log something
+            _logger.Log(LogLevel.Info, "information");
+
+            var entity = GetLogEntities().First();
+            var key = entity.RowKey.Split("__".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            Assert.Equal(3, key.Length);
+            Assert.True(gdcVariables.ContainsValue(key[0]));
+            Assert.True(gdcVariables.ContainsValue(key[1]));
+        }
+
+        [Fact]
         public void IncludeDateInRowKey()
         {
             // configure keys
