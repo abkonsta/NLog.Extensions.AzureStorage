@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Globalization;
-using System.Net.NetworkInformation;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace NLog.Extensions.AzureTableStorage
@@ -13,14 +13,18 @@ namespace NLog.Extensions.AzureTableStorage
     public class LogEntity : TableEntity
     {
         #region Constants
+
         #endregion Constants
 
         #region Fields
+
         private readonly object _syncRoot = new object();
         private static readonly CompareInfo InvariantCompareInfo = CultureInfo.InvariantCulture.CompareInfo;
+
         #endregion Fields
 
         #region Properties
+
         public string LogTimeStamp { get; set; }
 
         public string Level { get; set; }
@@ -40,9 +44,11 @@ namespace NLog.Extensions.AzureTableStorage
         public string ExceptionData { get; set; }
 
         public string MachineName { get; set; }
+
         #endregion Properties
 
         #region Constructors
+
         public LogEntity()
         {
         }
@@ -81,12 +87,14 @@ namespace NLog.Extensions.AzureTableStorage
                 RowKey = TransformKey(rowKey, logEvent);
             }
         }
+
         #endregion Constructors
 
         #region Methods
+
         private string TransformKey(string key, LogEventInfo logEvent)
         {
-            var capacity = key.Length * 3;  // Guesstimate of a reasonable maximum length after transform
+            var capacity = key.Length * 3; // Guesstimate of a reasonable maximum length after transform
             var builder = new StringBuilder(key, capacity);
 
             var date = logEvent.TimeStamp.ToUniversalTime();
@@ -117,6 +125,16 @@ namespace NLog.Extensions.AzureTableStorage
             if (InvariantCompareInfo.IndexOf(key, "${machine}", CompareOptions.Ordinal) >= 0)
                 builder.Replace("${machine}", MachineName);
 
+            var gdcRegEx = new Regex(@"\$\{(gdc:)(\w{1,})\}", RegexOptions.Compiled);
+            foreach (Match match in gdcRegEx.Matches(key))
+            {
+                var gdcItem = GlobalDiagnosticsContext.Get(match.Groups[2].Value);
+                if (!string.IsNullOrWhiteSpace(gdcItem))
+                {
+                    builder.Replace(match.Groups[0].Value, gdcItem);
+                }
+            }
+
             var result = builder.ToString();
             return result;
         }
@@ -130,6 +148,7 @@ namespace NLog.Extensions.AzureTableStorage
             }
             return data.ToString();
         }
+
         #endregion Methods
     }
 }
