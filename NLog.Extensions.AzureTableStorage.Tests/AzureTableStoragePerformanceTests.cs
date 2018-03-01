@@ -70,7 +70,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         private CloudStorageAccount GetStorageAccount()
         {
             var connectionString = GetConnectionString();
-            var storageAccount = CloudStorageAccount.Parse(connectionString);
+			var storageAccount = CloudStorageAccount.Parse(connectionString);
             return storageAccount;
         }
 

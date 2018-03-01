@@ -1,9 +1,8 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using Microsoft.Build.Framework;
 using NLog.Common;
 using NLog.Targets;
-using NLog.Internal;
 
 namespace NLog.Extensions.AzureTableStorage
 {

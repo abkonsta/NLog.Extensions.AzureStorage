@@ -93,7 +93,7 @@ namespace NLog.Extensions.AzureTableStorage
 
                 //create charts table if not exists.
                 _cloudTable = tableClient.GetTableReference(tableName);
-                _cloudTable.CreateIfNotExists();
+	            _cloudTable.CreateIfNotExistsAsync();
             }
             catch (Exception exception)
             {
@@ -131,7 +131,7 @@ namespace NLog.Extensions.AzureTableStorage
             }
 
             var insertOperation = TableOperation.Insert(entity);
-            _cloudTable.Execute(insertOperation);
+            _cloudTable.ExecuteAsync(insertOperation);
         }
     }
     #endregion Methods

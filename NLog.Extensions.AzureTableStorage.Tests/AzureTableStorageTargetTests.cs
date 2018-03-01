@@ -61,7 +61,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         {
             var message = "exception message";
 
-            _logger.Log(LogLevel.Error, message, (Exception)new NullReferenceException());
+            _logger.Log(LogLevel.Error, new NullReferenceException(), message);
 
             var entities = GetLogEntities();
             Assert.Equal(1, entities.Count);
@@ -90,7 +90,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
             exception.Data["id"] = errorId;
             exception.Data["name"] = "ahmed";
 
-            _logger.Log(LogLevel.Error, "exception message", (Exception)exception);
+            _logger.Log(LogLevel.Error, exception, "exception message");
 
             var entities = GetLogEntities();
             var entity = entities.Single();
@@ -103,7 +103,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         {
             var exception = new NullReferenceException();
 
-            _logger.Log(LogLevel.Error, "exception message", (Exception)exception);
+            _logger.Log(LogLevel.Error, exception, "exception message");
 
             var entity = GetLogEntities().Single();
             Assert.NotNull(entity.Exception);
@@ -116,7 +116,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
             var message = "exception message";
             var exception = new NullReferenceException(message, new DivideByZeroException());
 
-            _logger.Log(LogLevel.Error, message, (Exception)exception);
+            _logger.Log(LogLevel.Error, exception, message);
 
             var entity = GetLogEntities().Single();
             Assert.NotNull(entity.Exception);
@@ -130,7 +130,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         {
             var exception = new NullReferenceException();
 
-            _logger.Log(LogLevel.Error, "exception message", (Exception)exception);
+            _logger.Log(LogLevel.Error, exception, "exception message");
 
             var entity = GetLogEntities().Single();
             Assert.True(entity.PartitionKey.Contains("Test"));
@@ -141,7 +141,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         {
             var exception = new NullReferenceException();
 
-            _logger.Log(LogLevel.Error, "exception message", (Exception)exception);
+            _logger.Log(LogLevel.Error, exception, "exception message");
 
             var entity = GetLogEntities().Single();
             const string splitter = "__";
@@ -158,7 +158,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         {
             var exception = new NullReferenceException();
 
-            _logger.Log(LogLevel.Error, "exception message", (Exception)exception);
+            _logger.Log(LogLevel.Error, exception, "exception message");
 
             var entity = GetLogEntities().Single();
             Assert.Equal(entity.MachineName, Environment.MachineName);
