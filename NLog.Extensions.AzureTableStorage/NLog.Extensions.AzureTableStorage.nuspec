@@ -19,7 +19,7 @@
     <releaseNotes>Support for macros in partition and row keys is added.</releaseNotes>
     <summary>Azure table storage target implementation for NLog. A few improvements designed to give the developer
     greater control over how PartitionKey and RowKey are assigned.</summary>
-    <copyright>Copyright 2015</copyright>
+    <copyright>Copyright 2015-2018</copyright>
     <tags>azure nlog table storage logging</tags>
   </metadata>
 </package>

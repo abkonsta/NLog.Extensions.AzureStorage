@@ -2,14 +2,13 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
-	
-	<Version>1.1.5.0</Version>
-	<FileVersion>1.1.5.0</FileVersion>
-	<Description>Azure table storage for NLog</Description>
-	<Copyright>Copyright git ©  2015</Copyright>
-	<Company>abkonsta, fork from harouny</Company>
-	<Product>NLog.Extensions.AzureTableStorage</Product>
-	<Authors />	
+	  <Version>1.2-rc1</Version>
+	  <FileVersion>1.1.5.0</FileVersion>
+	  <Description>Azure table storage for NLog</Description>
+	  <Copyright>Copyright © 2015-2018</Copyright>
+	  <Company>abkonsta, fork from harouny</Company>
+	  <Product>NLog.Extensions.AzureTableStorage</Product>
+	  <Authors />	
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,13 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="WindowsAzure.Storage" Version="9.1.0" />
-	<PackageReference Include="NLog" Version="4.5.0-rc06" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Microsoft.Build.Framework">
-      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7\Microsoft.Build.Framework.dll</HintPath>
-    </Reference>
+	  <PackageReference Include="NLog" Version="4.5.0-rc06" />
   </ItemGroup>
 
 </Project>

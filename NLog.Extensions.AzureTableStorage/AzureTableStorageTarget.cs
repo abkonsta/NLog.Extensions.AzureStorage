@@ -1,8 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-using Microsoft.Build.Framework;
-using NLog.Common;
+﻿using NLog.Common;
 using NLog.Targets;
+using System;
+using System.Diagnostics;
+using NLog.Config;
 
 namespace NLog.Extensions.AzureTableStorage
 {
@@ -20,14 +20,16 @@ namespace NLog.Extensions.AzureTableStorage
         #endregion Fields
 
         #region Properties
-        [Required]
+        [RequiredParameter]
         public string ConnectionString { get; set; }
 
-        [Required]
+        [RequiredParameter]
         public string TableName { get; set; }
 
+        [RequiredParameter]
         public string PartitionKey { get; set; }
 
+        [RequiredParameter]
         public string RowKey { get; set; }
         #endregion Properties
 

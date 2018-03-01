@@ -3,6 +3,12 @@ NLog target for Azure Storage Tables
 
 This package allows you to set up an NLog target to store logs in Azure table storage.
 
+Changes for version 1.2
+=======================
+
+Currently in 'RC' status because it requires NLog 4.5-rc.
+Added support for .NET Core.
+
 Changes for version 1.1.4
 =========================
 
@@ -20,7 +26,7 @@ The new release replaces the 'ConnectionStringKey' property with the 'Connection
 How to use
 ==========
 
-- Download package from <a href="https://www.nuget.org/packages/NLog.Extensions.AzureTableStorage/">the nuget site</a>.
+- Download package NLog.Extensions.AzureTableStorage from the nuget site</a>.
 - Set up your NLog.config file:
 
 `````xml
@@ -104,13 +110,12 @@ That will prevent you from accidentally logging something to an un-intended loca
 How to View Logs?
 =================
 
-I have found that the "Cloud Explorer" built into Microsoft Visual Studio 2015 is sufficient for most of my log searching needs. Think hard about what you are going to use as PartitionKey and RowKey.
-
+I have found that the "Cloud Explorer" built into Microsoft Visual Studio 2015+ is sufficient for most of my log searching needs (as of this writing, VS 2017 is still the best way to view azure tables). Think hard about what you are going to use as PartitionKey and RowKey.
 When you browse your logs in the Cloud Explorer, the data will look something like this:
 
 ![Cloud Explorer Screenshot](screenshot.png?raw=true "Cloud Explorer Screenshot")
 
-Other ways to access table storage:
+Other ways to access table storage (not sure about how current these are):
 
 - <a href="http://www.cloudportam.com/">Cloud Portam</a>
 - <a href="http://azurestorageexplorer.codeplex.com/">Azure Storage Explorer</a>
