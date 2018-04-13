@@ -4,15 +4,17 @@ using Microsoft.WindowsAzure.Storage.Table;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace NLog.Extensions.AzureTableStorage.Tests
 {
     public class AzureTableStorageTargetTests : IDisposable
     {
-        private readonly Logger _logger;
+        private const string TargetTableName = "AzureTableStorageTargetTests";
         private readonly CloudTable _cloudTable;
-        private const string TargetTableName = "AzureTableStorageTargetTests"; //must match table name in AzureTableStorage target in NLog.config
+        private readonly Logger _logger;
+        //must match table name in AzureTableStorage target in NLog.config
 
         public AzureTableStorageTargetTests()
         {
@@ -34,36 +36,13 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         }
 
         [Fact]
-        public void CanReconfigureOnTheFly()
-        {
-            var azureStorageTarget = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName(TargetTableName);
-            azureStorageTarget.ConnectionString = "yo";
-            LogManager.ReconfigExistingLoggers();
-        }
-
-        [Fact]
-        public void CanLogInformation()
-        {
-            var message = "information";
-
-            _logger.Log(LogLevel.Info, message);
-
-            var entities = GetLogEntities();
-            Assert.Equal(1, entities.Count);
-            var entity = entities.Single();
-            Assert.Equal(message, entity.Message);
-            Assert.Equal("Info", entity.Level);
-            Assert.Equal(entity.LoggerName, TargetTableName);
-        }
-
-        [Fact]
-        public void CanLogExceptions()
+        public async Task CanLogExceptions()
         {
             var message = "exception message";
 
             _logger.Log(LogLevel.Error, new NullReferenceException(), message);
 
-            var entities = GetLogEntities();
+            var entities = (await GetLogEntities());
             Assert.Equal(1, entities.Count);
             var entity = entities.Single();
             Assert.Equal(message, entity.Message);
@@ -73,17 +52,34 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         }
 
         [Fact]
-        public void IncludeExceptionFormattedMessengerInLoggedRow()
+        public async Task CanLogInformation()
         {
-            _logger.Debug("exception message {0} and {1}.", 2010, 2014);
+            var message = "information";
 
-            var entity = GetLogEntities().Single();
+            _logger.Log(LogLevel.Info, message);
 
-            Assert.Equal("exception message 2010 and 2014.", entity.Message);
+            var entities = (await GetLogEntities());
+            Assert.Equal(1, entities.Count);
+            var entity = entities.Single();
+            Assert.Equal(message, entity.Message);
+            Assert.Equal("Info", entity.Level);
+            Assert.Equal(entity.LoggerName, TargetTableName);
         }
 
         [Fact]
-        public void IncludeExceptionDataInLoggedRow()
+        public void CanReconfigureOnTheFly()
+        {
+            var azureStorageTarget = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName(TargetTableName);
+            azureStorageTarget.ConnectionString = "yo";
+            LogManager.ReconfigExistingLoggers();
+        }
+        public void Dispose()
+        {
+            _cloudTable.DeleteIfExists();
+        }
+
+        [Fact]
+        public async Task IncludeExceptionDataInLoggedRow()
         {
             var exception = new NullReferenceException();
             var errorId = Guid.NewGuid();
@@ -92,58 +88,41 @@ namespace NLog.Extensions.AzureTableStorage.Tests
 
             _logger.Log(LogLevel.Error, exception, "exception message");
 
-            var entities = GetLogEntities();
+            var entities = (await GetLogEntities());
             var entity = entities.Single();
             Assert.True(entity.ExceptionData.Contains(errorId.ToString()));
             Assert.True(entity.ExceptionData.Contains("name=ahmed"));
         }
 
         [Fact]
-        public void IncludeExceptionDetailsInLoggedRow()
+        public async Task IncludeExceptionDetailsInLoggedRow()
         {
             var exception = new NullReferenceException();
 
             _logger.Log(LogLevel.Error, exception, "exception message");
 
-            var entity = GetLogEntities().Single();
+            var entity = (await GetLogEntities()).Single();
             Assert.NotNull(entity.Exception);
             Assert.Equal(exception.ToString().ExceptBlanks(), entity.Exception.ExceptBlanks());
         }
 
         [Fact]
-        public void IncludeInnerExceptionDetailsInLoggedRow()
+        public async Task IncludeExceptionFormattedMessengerInLoggedRow()
         {
-            var message = "exception message";
-            var exception = new NullReferenceException(message, new DivideByZeroException());
+            _logger.Debug("exception message {0} and {1}.", 2010, 2014);
 
-            _logger.Log(LogLevel.Error, exception, message);
+            var entity = (await GetLogEntities()).Single();
 
-            var entity = GetLogEntities().Single();
-            Assert.NotNull(entity.Exception);
-            Assert.Equal(exception.ToString().ExceptBlanks(), entity.Exception.ExceptBlanks());
-            Assert.NotNull(entity.InnerException);
-            Assert.Equal(exception.InnerException.ToString().ExceptBlanks(), entity.InnerException.ExceptBlanks());
+            Assert.Equal("exception message 2010 and 2014.", entity.Message);
         }
-
         [Fact]
-        public void IncludePrefixInPartitionKey()
+        public async Task IncludeGuidAndTimeInRowKey()
         {
             var exception = new NullReferenceException();
 
             _logger.Log(LogLevel.Error, exception, "exception message");
 
-            var entity = GetLogEntities().Single();
-            Assert.True(entity.PartitionKey.Contains("Test"));
-        }
-
-        [Fact]
-        public void IncludeGuidAndTimeInRowKey()
-        {
-            var exception = new NullReferenceException();
-
-            _logger.Log(LogLevel.Error, exception, "exception message");
-
-            var entity = GetLogEntities().Single();
+            var entity = (await GetLogEntities()).Single();
             const string splitter = "__";
             Assert.True(entity.RowKey.Contains(splitter));
             var splitterArray = "__".ToCharArray();
@@ -154,14 +133,47 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         }
 
         [Fact]
-        public void IncludeMachineName()
+        public async Task IncludeInnerExceptionDetailsInLoggedRow()
+        {
+            var message = "exception message";
+            var exception = new NullReferenceException(message, new DivideByZeroException());
+
+            _logger.Log(LogLevel.Error, exception, message);
+
+            var entity = (await GetLogEntities()).Single();
+            Assert.NotNull(entity.Exception);
+            Assert.Equal(exception.ToString().ExceptBlanks(), entity.Exception.ExceptBlanks());
+            Assert.NotNull(entity.InnerException);
+            Assert.Equal(exception.InnerException.ToString().ExceptBlanks(), entity.InnerException.ExceptBlanks());
+        }
+
+        [Fact]
+        public async Task IncludeMachineName()
         {
             var exception = new NullReferenceException();
 
             _logger.Log(LogLevel.Error, exception, "exception message");
 
-            var entity = GetLogEntities().Single();
+            var entity = (await GetLogEntities()).Single();
             Assert.Equal(entity.MachineName, Environment.MachineName);
+        }
+
+        [Fact]
+        public async Task IncludePrefixInPartitionKey()
+        {
+            var exception = new NullReferenceException();
+
+            _logger.Log(LogLevel.Error, exception, "exception message");
+
+            var entity = (await GetLogEntities()).Single();
+            Assert.True(entity.PartitionKey.Contains("Test"));
+        }
+        private async Task<List<LogEntity>> GetLogEntities()
+        {
+            await Task.Delay(250);
+            var query = new TableQuery<LogEntity>();
+            var entities = _cloudTable.ExecuteQuery(query);
+            return entities.ToList();
         }
 
         private CloudStorageAccount GetStorageAccount()
@@ -169,18 +181,6 @@ namespace NLog.Extensions.AzureTableStorage.Tests
             var connectionString = CloudConfigurationManager.GetSetting("ConnectionString"); 
             var storageAccount = CloudStorageAccount.Parse(connectionString);
             return storageAccount;
-        }
-
-        private List<LogEntity> GetLogEntities()
-        {
-            var query = new TableQuery<LogEntity>();
-            var entities = _cloudTable.ExecuteQuery(query);
-            return entities.ToList();
-        }
-
-        public void Dispose()
-        {
-            _cloudTable.DeleteIfExists();
         }
     }
 }

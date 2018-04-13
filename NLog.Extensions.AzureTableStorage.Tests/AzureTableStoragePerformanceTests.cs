@@ -1,9 +1,10 @@
-﻿using Microsoft.Azure;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Table;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Azure;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Table;
 using Xunit;
 
 namespace NLog.Extensions.AzureTableStorage.Tests
@@ -11,19 +12,23 @@ namespace NLog.Extensions.AzureTableStorage.Tests
     public class AzureTableStoragePerformanceTests : IDisposable
     {
         #region Constants
+
         //must match table name in AzureTableStorage target in NLog.config
         private const string TargetTableName = "AzureTableStoragePerformanceTests";
+
         #endregion Constants
 
         #region Fields
-        private readonly Logger _logger;
+
         private readonly CloudTable _cloudTable;
+        private readonly Logger _logger;
+
         #endregion Fields
 
-        #region Properties
-        #endregion Properties
+
 
         #region Constructors
+
         public AzureTableStoragePerformanceTests()
         {
             try
@@ -42,23 +47,30 @@ namespace NLog.Extensions.AzureTableStorage.Tests
                 throw new Exception("Failed to initialize tests, make sure Azure Storage Emulator is running.", ex);
             }
         }
+
         #endregion Constructors
 
         #region Methods
+
+        public void Dispose()
+        {
+            _cloudTable.DeleteIfExists();
+        }
+
         [Fact]
-        public void TestPerformance()
+        public async Task TestPerformance()
         {
             // Designed for use with a profiler
 
             var target = (AzureTableStorageTarget)LogManager.Configuration.FindTargetByName(TargetTableName);
-            target.RowKey = "${date}_${guid}_${time}_${ticks}_${longdate}_${micros}_${guid}_${logger}_${level}_${machine}_${descticks}";
+            target.RowKey = "${date}_${guid}_${time}_${ticks}_${guid}_${logger}_${level}";
             LogManager.ReconfigExistingLoggers();
 
-            const int totalEntities = 5000;
+            const int totalEntities = 1500;
             for (var count = 0; count < totalEntities; count++)
                 _logger.Log(LogLevel.Info, "information");
 
-            var entities = GetLogEntities();
+            var entities = (await GetLogEntities(totalEntities));
             Assert.Equal(totalEntities, entities.Count);
         }
 
@@ -67,25 +79,31 @@ namespace NLog.Extensions.AzureTableStorage.Tests
             return CloudConfigurationManager.GetSetting("ConnectionString");
         }
 
+        private async Task<List<LogEntity>> GetLogEntities(int expectedCount)
+        {
+            var entities = new List<LogEntity>();
+
+            for (var i = 0; i < 5; i++)
+            {
+                await Task.Delay(2500);
+                var query = new TableQuery<LogEntity>();
+                entities = new List<LogEntity>(_cloudTable.ExecuteQuery(query));
+                if (expectedCount == entities.Count)
+                {
+                    break;
+                }
+            }
+
+            return entities;
+        }
+
         private CloudStorageAccount GetStorageAccount()
         {
             var connectionString = GetConnectionString();
-			var storageAccount = CloudStorageAccount.Parse(connectionString);
+            var storageAccount = CloudStorageAccount.Parse(connectionString);
             return storageAccount;
         }
 
-        private List<LogEntity> GetLogEntities()
-        {
-            // Construct the query operation for all customer entities where PartitionKey="Smith".
-            var query = new TableQuery<LogEntity>();
-            var entities = _cloudTable.ExecuteQuery(query);
-            return entities.ToList();
-        }
-
-        public void Dispose()
-        {
-            _cloudTable.DeleteIfExists();
-        }
         #endregion Methods
     }
 }

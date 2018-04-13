@@ -3,6 +3,8 @@ using NLog.Targets;
 using System;
 using System.Diagnostics;
 using NLog.Config;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace NLog.Extensions.AzureTableStorage
 {
@@ -70,9 +72,14 @@ namespace NLog.Extensions.AzureTableStorage
 
         protected override void Write(LogEventInfo logEvent)
         {
+            WriteAsyncTask(logEvent, new CancellationToken()).ConfigureAwait(false);
+        }
+
+        protected async Task WriteAsyncTask(LogEventInfo logEvent, CancellationToken cancellationToken)
+        {
             try
             {
-                WriteToDatabase(logEvent);
+                await WriteToDatabaseAsync(logEvent);
             }
             catch (Exception exception)
             {
@@ -84,11 +91,12 @@ namespace NLog.Extensions.AzureTableStorage
             }
         }
 
-        private void WriteToDatabase(LogEventInfo logEvent)
+        private async Task WriteToDatabaseAsync(LogEventInfo logEvent)
         {
-            _tableStorageManager.EnsureConfigurationIsCurrent(ConnectionString, TableName);
-            _tableStorageManager.Add(new LogEntity(PartitionKey, RowKey, logEvent, Layout.Render(logEvent)));
+            await _tableStorageManager.EnsureConfigurationIsCurrentAsync(ConnectionString, TableName);
+            await _tableStorageManager.AddAsync(new LogEntity(PartitionKey, RowKey, logEvent, Layout.Render(logEvent)));
         }
+
         #endregion Methods
     }
 }
