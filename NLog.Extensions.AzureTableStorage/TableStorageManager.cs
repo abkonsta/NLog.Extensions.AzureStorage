@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using NLog.Common;
@@ -37,7 +38,7 @@ namespace NLog.Extensions.AzureTableStorage
         #endregion Constructors
 
         #region Methods
-        public void EnsureConfigurationIsCurrent(string connectionString, string tableName)
+        public async Task EnsureConfigurationIsCurrentAsync(string connectionString, string tableName)
         {
             if (string.IsNullOrWhiteSpace(connectionString))
                 return;
@@ -60,11 +61,11 @@ namespace NLog.Extensions.AzureTableStorage
             { 
                 // re-initialize the storage manager. the target will now log to the newly specified
                 // storage account and table
-                Initialize(connectionString, tableName);
+                await InitializeAsync(connectionString, tableName);
             }
         }
 
-        private void Initialize(string connectionString, string tableName)
+        private async Task InitializeAsync(string connectionString, string tableName)
         {
             _connectionString = connectionString;
             _tableName = tableName;
@@ -93,7 +94,7 @@ namespace NLog.Extensions.AzureTableStorage
 
                 //create charts table if not exists.
                 _cloudTable = tableClient.GetTableReference(tableName);
-	            _cloudTable.CreateIfNotExistsAsync();
+                await _cloudTable.CreateIfNotExistsAsync();
             }
             catch (Exception exception)
             {
@@ -115,7 +116,7 @@ namespace NLog.Extensions.AzureTableStorage
         /// Check if the connection has been initialized properly (_cloudTable is not null).
         /// </summary>
         /// <param name="entity"></param>
-        public void Add(LogEntity entity)
+        public async Task AddAsync(LogEntity entity)
         {
             // check if this connection has been initialized. if it hasn't, it is likely because
             // we were unable to connect, or the config is invalid, or the "development storage" is used 
@@ -131,7 +132,7 @@ namespace NLog.Extensions.AzureTableStorage
             }
 
             var insertOperation = TableOperation.Insert(entity);
-            _cloudTable.ExecuteAsync(insertOperation);
+            await _cloudTable.ExecuteAsync(insertOperation);
         }
     }
     #endregion Methods
