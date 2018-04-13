@@ -12,7 +12,7 @@ namespace NLog.Extensions.AzureTableStorage
     /// This class represents a target in the NLog.config file.
     /// </summary>
     [Target("AzureTableStorage")]
-    public class AzureTableStorageTarget : TargetWithLayout
+    public class AzureTableStorageTarget : AsyncTaskTarget
     {
         #region Constants
         #endregion Constants
@@ -75,7 +75,7 @@ namespace NLog.Extensions.AzureTableStorage
             WriteAsyncTask(logEvent, new CancellationToken()).ConfigureAwait(false);
         }
 
-        protected async Task WriteAsyncTask(LogEventInfo logEvent, CancellationToken cancellationToken)
+        protected override async Task WriteAsyncTask(LogEventInfo logEvent, CancellationToken cancellationToken)
         {
             try
             {

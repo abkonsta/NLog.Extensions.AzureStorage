@@ -82,16 +82,22 @@ namespace NLog.Extensions.AzureTableStorage.Tests
         private async Task<List<LogEntity>> GetLogEntities(int expectedCount)
         {
             var entities = new List<LogEntity>();
+            var previousCount = 0;
 
-            for (var i = 0; i < 5; i++)
+            while(true)
             {
                 await Task.Delay(2500);
                 var query = new TableQuery<LogEntity>();
                 entities = new List<LogEntity>(_cloudTable.ExecuteQuery(query));
-                if (expectedCount == entities.Count)
+                var newCount = entities.Count;
+
+                if (newCount == expectedCount || newCount == previousCount)
                 {
                     break;
                 }
+
+                previousCount = newCount;
+                    
             }
 
             return entities;

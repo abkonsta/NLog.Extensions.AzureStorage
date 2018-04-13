@@ -42,7 +42,7 @@ namespace NLog.Extensions.AzureTableStorage.Tests
 
             _logger.Log(LogLevel.Error, new NullReferenceException(), message);
 
-            var entities = (await GetLogEntities());
+            var entities = (await GetLogEntities(4));
             Assert.Equal(1, entities.Count);
             var entity = entities.Single();
             Assert.Equal(message, entity.Message);
@@ -168,12 +168,22 @@ namespace NLog.Extensions.AzureTableStorage.Tests
             var entity = (await GetLogEntities()).Single();
             Assert.True(entity.PartitionKey.Contains("Test"));
         }
-        private async Task<List<LogEntity>> GetLogEntities()
+        private async Task<List<LogEntity>> GetLogEntities(int retryCount = 2)
         {
-            await Task.Delay(250);
-            var query = new TableQuery<LogEntity>();
-            var entities = _cloudTable.ExecuteQuery(query);
-            return entities.ToList();
+            var entities = new List<LogEntity>();
+
+            for (var i = 0; i < retryCount; i++)
+            {
+                await Task.Delay(250);
+                var query = new TableQuery<LogEntity>();
+                entities = new List<LogEntity>(_cloudTable.ExecuteQuery(query));
+                if (entities.Count != 0)
+                {
+                    break;
+                }
+            }
+
+            return entities;
         }
 
         private CloudStorageAccount GetStorageAccount()
