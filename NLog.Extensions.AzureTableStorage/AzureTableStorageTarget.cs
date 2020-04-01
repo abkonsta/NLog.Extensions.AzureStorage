@@ -1,8 +1,9 @@
 ﻿using NLog.Common;
+using NLog.Config;
+using NLog.Layouts;
 using NLog.Targets;
 using System;
 using System.Diagnostics;
-using NLog.Config;
 
 namespace NLog.Extensions.AzureTableStorage
 {
@@ -87,7 +88,11 @@ namespace NLog.Extensions.AzureTableStorage
         private void WriteToDatabase(LogEventInfo logEvent)
         {
             _tableStorageManager.EnsureConfigurationIsCurrent(ConnectionString, TableName);
-            _tableStorageManager.Add(new LogEntity(PartitionKey, RowKey, logEvent, Layout.Render(logEvent)));
+
+            Layout rowKeyLayout = RowKey;
+            var rowKey = rowKeyLayout.Render(logEvent);
+
+            _tableStorageManager.Add(new LogEntity(PartitionKey, rowKey, logEvent, Layout.Render(logEvent)));
         }
         #endregion Methods
     }
