@@ -1,22 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2036
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NLog.Extensions.AzureTableStorage", "NLog.Extensions.AzureTableStorage\NLog.Extensions.AzureTableStorage.csproj", "{69B79032-F3C0-4087-B14E-54E7E91FC4A0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLog.Extensions.AzureTableStorage.Tests", "NLog.Extensions.AzureTableStorage.Tests\NLog.Extensions.AzureTableStorage.Tests.csproj", "{FFF58919-9BC6-4FFA-B0B4-2197F468813D}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{576BC019-896A-4287-9399-76FB1DEE0C2C}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{36F18281-C28C-49DD-993C-84396F78153F}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NLog.Extensions.AzureBlobTable", "NLog.Extensions.AzureBlobTable\NLog.Extensions.AzureBlobTable.csproj", "{C43392DB-F12D-4FFC-AA98-CBD2B4C5B4B6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLog.Extensions.AzureBlobTable.Tests", "NLog.Extensions.AzureBlobTable.Tests\NLog.Extensions.AzureBlobTable.Tests.csproj", "{FFF58919-9BC6-4FFA-B0B4-2197F468813D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,10 +18,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{69B79032-F3C0-4087-B14E-54E7E91FC4A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{69B79032-F3C0-4087-B14E-54E7E91FC4A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{69B79032-F3C0-4087-B14E-54E7E91FC4A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{69B79032-F3C0-4087-B14E-54E7E91FC4A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C43392DB-F12D-4FFC-AA98-CBD2B4C5B4B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C43392DB-F12D-4FFC-AA98-CBD2B4C5B4B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C43392DB-F12D-4FFC-AA98-CBD2B4C5B4B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C43392DB-F12D-4FFC-AA98-CBD2B4C5B4B6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FFF58919-9BC6-4FFA-B0B4-2197F468813D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FFF58919-9BC6-4FFA-B0B4-2197F468813D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFF58919-9BC6-4FFA-B0B4-2197F468813D}.Release|Any CPU.ActiveCfg = Release|Any CPU

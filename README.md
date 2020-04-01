@@ -3,6 +3,16 @@ NLog target for Azure Storage Tables
 
 This package allows you to set up an NLog target to store logs in Azure table storage.
 
+
+
+Changes for version 1.4
+=======================
+
+Updated all dependencies
+
+Moved package to my new nuget.org account because I can no longer access the old one.
+
+
 Changes for version 1.2
 =======================
 

@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>NLog.Extensions.AzureBlobTable</id>
+    <version>1.4.0</version>
+    <title>NLog.Extensions.AzureBlobTable</title>
+    <authors>Andre Konstantinov</authors>
+    <owners>Andre Konstantinov</owners>
+    <license type="file">license.txt</license>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/abkonsta/NLog.Extensions.AzureBlobTable</projectUrl>
+    <description>
+      Azure table storage target implementation for NLog. A fork of harouny's project in github.
+      Supports customizing partition and row keys with macros. For example, you can specify ${longdate}_${guid}
+      in the target "RowKey" property to have your key be made up of a long date/time string and a guid, with
+      an underscore in between. For details see https://github.com/abkonsta/NLog.Extensions.AzureStorageBlob.
+    </description>
+    <releaseNotes>Support for macros in partition and row keys is added.</releaseNotes>
+    <summary>Azure table storage target implementation for NLog. A few improvements designed to give the developer
+    greater control over how PartitionKey and RowKey are assigned.</summary>
+    <copyright>Copyright 2015-2020</copyright>
+    <tags>azure nlog table storage logging</tags>
+    <dependencies>
+      <group targetFramework="net46">
+        <dependency id="NLog" version="4.*" />
+        <dependency id="WindowsAzure.Storage" version="9.*" />
+      </group>
+      <group targetFramework="netstandard2.0">
+        <dependency id="NLog" version="[4,)" />
+        <dependency id="WindowsAzure.Storage" version="9.*" />
+      </group>
+    </dependencies>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Core" targetFramework="net46" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework="netstandard2.0" />
+    </frameworkAssemblies>
+  </metadata>
+  <files>
+    <file src="bin\Release\netstandard2.0\NLog.Extensions.AzureBlobTable.dll" target="lib\netstandard2.0\NLog.Extensions.AzureBlobTable.dll" />
+    <file src="bin\Release\net46\NLog.Extensions.AzureBlobTable.dll" target="lib\net46\NLog.Extensions.AzureBlobTable.dll" />
+    <file src="license.txt" target="" />
+  </files>
+</package>
